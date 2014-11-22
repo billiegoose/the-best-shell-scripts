@@ -1,0 +1,46 @@
+#!/bin/bash
+# This is a mix of:
+# http://unix.stackexchange.com/a/41988
+# http://unix.stackexchange.com/a/67316
+trap ctrl_c INT
+
+function ctrl_c()
+{
+  echo -en "\033[?7h" #Enable line wrap
+  echo -e "\033[?25h" #Enable cursor
+  exit 0
+}
+
+# Optional first variable is number of seconds to wait.
+WATCHERTIME=1
+[[ $1 =~ ^-?[0-9]+$ ]] && WATCHERTIME=$1 && shift
+
+# Clear screen so we don't overwrite bash's scroll-back history.
+clear
+
+echo -en "\033[?7l" #Disable line wrap
+echo -en "\033[?25l" #Disable cursor
+
+C_REVERSE='\e[7m'
+C_RESET='\e[0m'
+P_TOPLEFT='\033[H'
+P_ERASELINE='\033[K'
+
+COUNT=0
+while true; do
+  COUNT=$[COUNT+1]
+  LINES=$(tput lines)
+  COLUMNS=$(tput cols)
+  WATCHERHEIGHT=$(($LINES - 2))
+  HEADER="Every ${WATCHERTIME} seconds - ${COUNT}"
+  PADDING=$[COLUMNS-${#HEADER}]
+  printf "${P_TOPLEFT}${C_REVERSE}${HEADER}%${PADDING}s${C_RESET}\n"
+  #/bin/echo -en "${C_REVERSE}Every ${WATCHERTIME} seconds - ${COUNT}${P_ERASELINE}${C_RESET}"
+  #/bin/echo "$PADDING"
+  ( eval $* ) | tail -n ${WATCHERHEIGHT} | sed "s/$/`printf ${P_ERASELINE}`/"
+  #| while read -r line ; do
+  #  echo -e "${line}"
+  #done
+  sleep ${WATCHERTIME}
+done
+
