@@ -29,18 +29,17 @@ P_ERASELINE='\033[K'
 COUNT=0
 while true; do
   COUNT=$[COUNT+1]
-  LINES=$(tput lines)
+  # Make awesome inverted header
   COLUMNS=$(tput cols)
-  WATCHERHEIGHT=$(($LINES - 2))
   HEADER="Every ${WATCHERTIME} seconds - ${COUNT}"
   PADDING=$[COLUMNS-${#HEADER}]
   printf "${P_TOPLEFT}${C_REVERSE}${HEADER}%${PADDING}s${C_RESET}\n"
-  #/bin/echo -en "${C_REVERSE}Every ${WATCHERTIME} seconds - ${COUNT}${P_ERASELINE}${C_RESET}"
-  #/bin/echo "$PADDING"
+  # Execute command and show the tail of the output
+  LINES=$(tput lines)
+  WATCHERHEIGHT=$(($LINES - 2)) 
   ( eval $* ) | tail -n ${WATCHERHEIGHT} | sed "s/$/`printf ${P_ERASELINE}`/"
-  #| while read -r line ; do
-  #  echo -e "${line}"
-  #done
+  # TODO: Delete remaining lines of screen.
+  # Sleep for a bit
   sleep ${WATCHERTIME}
 done
 
