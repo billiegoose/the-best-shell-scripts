@@ -1,0 +1,5 @@
+#!/bin/bash
+cd ~/bin
+wget http://foicica.com/textadept/download/textadept_LATEST.x86_64.tgz
+tar -xvzf textadept_LATEST.x86_64.tgz
+ln -s ./textadept_*/textadeptjit-curses ta

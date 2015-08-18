@@ -8,6 +8,7 @@ function ctrl_c()
 {
   echo -en "\033[?7h" #Enable line wrap
   echo -e "\033[?25h" #Enable cursor
+  clear
   exit 0
 }
 
@@ -31,14 +32,18 @@ while true; do
   COUNT=$[COUNT+1]
   # Make awesome inverted header
   COLUMNS=$(tput cols)
+  LINES=$(tput lines)
+  WATCHERHEIGHT=$(($LINES - 2)) 
   HEADER="Every ${WATCHERTIME} seconds - ${COUNT}"
   PADDING=$[COLUMNS-${#HEADER}]
   printf "${P_TOPLEFT}${C_REVERSE}${HEADER}%${PADDING}s${C_RESET}\n"
   # Execute command and show the tail of the output
-  LINES=$(tput lines)
-  WATCHERHEIGHT=$(($LINES - 2)) 
   ( eval $* ) | tail -n ${WATCHERHEIGHT} | sed "s/$/`printf ${P_ERASELINE}`/"
   # TODO: Delete remaining lines of screen.
+  FOOTER_LEFT="Press Ctrl+C to quit."
+  FOOTER_RIGHT="(${COLUMNS},${LINES})"
+  FOOTER_PADDING=$[COLUMNS-${#FOOTER_LEFT}-${#FOOTER_RIGHT}]
+  printf "${C_REVERSE}${FOOTER_LEFT}%${FOOTER_PADDING}s${FOOTER_RIGHT}${C_RESET}"
   # Sleep for a bit
   sleep ${WATCHERTIME}
 done
